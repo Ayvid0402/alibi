@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>The Alibi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Courier Prime', monospace;
+      background: radial-gradient(circle at 50% 0%, #2a2a2a 0%, #0a0a0a 70%);
+      color: #d4cfc4;
+      padding: 60px 20px;
+      text-align: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      font-family: 'Special Elite', cursive;
+      font-size: 42px;
+      letter-spacing: 4px;
+      color: #f2ece0;
+      text-shadow: 0 0 20px rgba(255,255,255,0.15);
+      margin-bottom: 4px;
+    }
+
+    #intro {
+      color: #8a8378;
+      font-size: 14px;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    #wrapper {
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    #persistentInfo {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+
+    #detective {
+      font-size: 56px;
+      text-align: center;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.15));
+    }
+
+    .caseFile {
+      background: #1e1c19;
+      border: 1px dashed #4a463e;
+      padding: 16px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #b8b2a4;
+    }
+
+    .caseFile h3 {
+      margin: 0 0 8px 0;
+      font-family: 'Special Elite', cursive;
+      color: #b0261f;
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .roleReveal {
+      text-align: center;
+      font-family: 'Special Elite', cursive;
+      font-size: 16px;
+      letter-spacing: 1px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #b0261f;
+      color: #f2ece0;
+      min-height: 20px;
+    }
+
+    .screen {
+      display: none;
+      background: #161513;
+      padding: 28px;
+      border-radius: 4px;
+      text-align: left;
+      border: 1px solid #2e2b26;
+      box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,0,0,0.4);
+    }
+
+    .screen.active { display: block; }
+
+    #briefingScreen { text-align: center; }
+
+    #suspicion {
+      font-family: 'Special Elite', cursive;
+      letter-spacing: 2px;
+      color: #b0261f;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #2a2724;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 1px solid #3a3630;
+    }
+
+    #suspicionBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #7a1a15, #c92a1f);
+      box-shadow: 0 0 10px rgba(201,42,31,0.6);
+      transition: width 0.4s ease;
+    }
+
+    #transcriptBox {
+      max-height: 260px;
+      overflow-y: auto;
+      margin-bottom: 14px;
+      padding-right: 4px;
+    }
+
+    .line {
+      margin-bottom: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .line.detective {
+      color: #ece6da;
+      border-left: 3px solid #b0261f;
+      padding-left: 10px;
+    }
+
+    .line.suspect {
+      color: #9a948a;
+      padding-left: 10px;
+      font-style: italic;
+    }
+
+    .contradictionFlag {
+      background: #2a1210;
+      border: 1px solid #b0261f;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      color: #f2c4c0;
+      display: none;
+    }
+
+    textarea#answerInput {
+      width: 100%;
+      background: #0e0d0c;
+      color: #ece6da;
+      border: 1px solid #3a3630;
+      border-radius: 2px;
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      padding: 10px;
+      resize: vertical;
+      min-height: 64px;
+      margin-bottom: 10px;
+    }
+
+    textarea#answerInput:focus {
+      outline: none;
+      border-color: #b0261f;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: 1px solid #3a3630;
+      border-radius: 2px;
+      background: #1e1c19;
+      color: #d4cfc4;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 8px;
+      font-family: 'Special Elite', cursive;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    button:hover:not(:disabled) {
+      background: #b0261f;
+      border-color: #b0261f;
+      color: #fff;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: transparent;
+      color: #8a8378;
+      border-color: #3a3630;
+    }
+
+    button.secondary:hover:not(:disabled) { background: #2a2724; color: #d4cfc4; }
+
+    .verdictLine { margin-bottom: 10px; font-size: 15px; line-height: 1.6; }
+    .verdictLine b { color: #b0261f; }
+
+    #reasoningBox {
+      background: #1e1c19;
+      border-left: 3px solid #b0261f;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #cfc8ba;
+    }
+
+    #reasoningBox h4 {
+      margin: 0 0 8px 0;
+      font-family: 'Special Elite', cursive;
+      font-size: 13px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #b0261f;
+    }
+
+    #reasoningBox ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    #feedbackResponse {
+      margin-top: 14px;
+      font-family: 'Special Elite', cursive;
+      color: #8a8378;
+      display: none;
+    }
+
+    #loadingLine {
+      font-style: italic;
+      color: #8a8378;
+      font-size: 13px;
+      display: none;
+      margin-bottom: 10px;
+    }
+
+    #errorLine {
+      color: #f2c4c0;
+      background: #2a1210;
+      border: 1px solid #b0261f;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>THE ALIBI</h1>
+  <p id="intro">— a murder. a suspect. an AI detective who's actually listening —</p>
+
+  <div id="wrapper">
+
+    <div id="persistentInfo">
+      <div id="detective">🕵️</div>
+      <div class="caseFile" id="caseFileBox"></div>
+      <div class="roleReveal" id="roleBox"></div>
+    </div>
+
+    <div id="briefingScreen" class="screen active">
+      <p style="margin-bottom:12px; font-size:14px; color:#b8b2a4;">Choose your role for this case:</p>
+      <button id="chooseInnocentBtn">I'm Innocent</button>
+      <button id="chooseKillerBtn">I'm the Killer</button>
+    </div>
+
+    <div id="interrogationScreen" class="screen">
+      <p id="suspicion">Suspicion: 0%</p>
+      <div class="bar-track">
+        <div id="suspicionBar"></div>
+      </div>
+
+      <div class="contradictionFlag" id="contradictionFlag"></div>
+      <div id="errorLine"></div>
+
+      <div id="transcriptBox"></div>
+
+      <div id="loadingLine">The detective is thinking it over...</div>
+
+      <textarea id="answerInput" placeholder="Type your answer to the detective..."></textarea>
+      <div>
+        <button id="submitAnswerBtn">Answer</button>
+        <button id="endInterrogationBtn" class="secondary">End Interrogation</button>
+        <button id="restartBtn" class="secondary">Restart</button>
+      </div>
+    </div>
+
+    <div id="verdictScreen" class="screen">
+      <p class="verdictLine" id="verdictSummary"></p>
+      <p class="verdictLine" id="verdictAiGuess"></p>
+
+      <div id="reasoningBox">
+        <h4>Detective's Reasoning</h4>
+        <ul id="reasoningList"></ul>
+      </div>
+
+      <p class="verdictLine" id="verdictTruth"></p>
+
+      <button id="rightBtn">AI got it right</button>
+      <button id="wrongBtn">AI got it wrong</button>
+      <p id="feedbackResponse"></p>
+
+      <div>
+        <button id="playAgainBtn">Play Again</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const briefingScreen = document.getElementById("briefingScreen");
+    const interrogationScreen = document.getElementById("interrogationScreen");
+    const verdictScreen = document.getElementById("verdictScreen");
+
+    const caseFileBox = document.getElementById("caseFileBox");
+    const roleBox = document.getElementById("roleBox");
+    const chooseInnocentBtn = document.getElementById("chooseInnocentBtn");
+    const chooseKillerBtn = document.getElementById("chooseKillerBtn");
+
+    const restartBtn = document.getElementById("restartBtn");
+    const endInterrogationBtn = document.getElementById("endInterrogationBtn");
+    const submitAnswerBtn = document.getElementById("submitAnswerBtn");
+    const answerInput = document.getElementById("answerInput");
+    const transcriptBox = document.getElementById("transcriptBox");
+    const suspicionLabel = document.getElementById("suspicion");
+    const suspicionBar = document.getElementById("suspicionBar");
+    const contradictionFlag = document.getElementById("contradictionFlag");
+    const errorLine = document.getElementById("errorLine");
+    const loadingLine = document.getElementById("loadingLine");
+
+    const verdictSummary = document.getElementById("verdictSummary");
+    const verdictAiGuess = document.getElementById("verdictAiGuess");
+    const verdictTruth = document.getElementById("verdictTruth");
+    const reasoningList = document.getElementById("reasoningList");
+    const rightBtn = document.getElementById("rightBtn");
+    const wrongBtn = document.getElementById("wrongBtn");
+    const feedbackResponse = document.getElementById("feedbackResponse");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+
+    // Model choice lives server-side in app.py (GROQ_MODEL), not here.
+    const MAX_QUESTIONS = 8;
+
+    let suspicion = 0;
+    let questionCount = 0;
+    let currentCase = null;
+    let isKiller = false;
+    let aiGuessedKiller = false;
+    let reasoningLog = [];
+    // transcript entries: { who: 'detective' | 'suspect', text: '...' }
+    let transcript = [];
+    let busy = false;
+
+    const victims = ["Mr. Whitfield", "Ms. Alvarez", "Professor Lang", "Captain Reyes", "Old Man Foster", "Dr. Chen", "Aunt Cordelia"];
+    const locations = ["the study", "the wine cellar", "the greenhouse", "the boathouse", "the attic", "the kitchen pantry", "the rooftop"];
+    const weaponCausePairs = [
+      { weapon: "a letter opener", cause: "a deep stab wound to the chest" },
+      { weapon: "a broken bottle", cause: "a deep gash, likely from a jagged edge" },
+      { weapon: "a garden shear", cause: "multiple puncture wounds" },
+      { weapon: "a candlestick", cause: "a single heavy blow to the back of the head" },
+      { weapon: "a length of rope", cause: "strangulation, though there are no clear signs of struggle" },
+      { weapon: "a fireplace poker", cause: "a heavy blow to the skull" },
+      { weapon: "a vial of poison slipped into a drink", cause: "poisoning — traces found in a half-finished drink" }
+    ];
+    const times = ["9:40pm", "10:05pm", "11:15pm", "8:20pm", "midnight", "7:50pm"];
+    const suspectNames = ["Eleanor", "Marcus", "Priya", "Theo", "Nadia", "Cole", "Ruth", "Devon", "Ingrid", "Felix", "Bianca", "Otis"];
+    const alibiTemplates = [
+      "says they were in the kitchen making tea",
+      "claims they were walking the dog outside",
+      "says they were on a phone call upstairs",
+      "says they were smoking on the balcony",
+      "claims they were reading in the library",
+      "says they were fixing the fuse box",
+      "says they were asleep in their room",
+      "claims they were in the garage",
+      "says they were feeding the cat"
+    ];
+    const sceneDetails = [
+      "The room was locked from the inside.",
+      "A window was left wide open despite the cold.",
+      "The lights were off when the body was found.",
+      "Nothing appeared to be stolen.",
+      "A glass had been shattered nearby.",
+      "The clock on the wall had stopped at the exact time of death.",
+      "There were muddy footprints leading away from the scene."
+    ];
+
+    const openingQuestionText = "Tell me everything you think matters about that night. Start wherever you want.";
+
+    function showScreen(screenEl) {
+      briefingScreen.classList.remove("active");
+      interrogationScreen.classList.remove("active");
+      verdictScreen.classList.remove("active");
+      screenEl.classList.add("active");
+    }
+
+    function pickRandom(arr, n) {
+      const copy = arr.slice();
+      const picked = [];
+      for (let i = 0; i < n; i++) {
+        const idx = Math.floor(Math.random() * copy.length);
+        picked.push(copy[idx]);
+        copy.splice(idx, 1);
+      }
+      return picked;
+    }
+
+    function generateCase() {
+      const victim = victims[Math.floor(Math.random() * victims.length)];
+      const location = locations[Math.floor(Math.random() * locations.length)];
+      const time = times[Math.floor(Math.random() * times.length)];
+      const pair = weaponCausePairs[Math.floor(Math.random() * weaponCausePairs.length)];
+      const scene = sceneDetails[Math.floor(Math.random() * sceneDetails.length)];
+
+      const names = pickRandom(suspectNames, 3);
+      const alibis = pickRandom(alibiTemplates, 3);
+      const suspects = names.map(function(name, i) {
+        return { name: name, alibi: alibis[i] };
+      });
+
+      return {
+        victim: victim, location: location, time: time, weapon: pair.weapon,
+        cause: pair.cause, scene: scene, suspects: suspects
+      };
+    }
+
+    function renderCaseFile(c) {
+      let html = "<h3>Case File</h3>";
+      html += "<div>Victim: " + c.victim + "</div>";
+      html += "<div>Cause of death: " + c.cause + "</div>";
+      html += "<div>Location: " + c.location + "</div>";
+      html += "<div>Time: " + c.time + "</div>";
+      html += "<div>Weapon: " + c.weapon + "</div>";
+      html += "<div style='margin-top:6px; font-style:italic;'>" + c.scene + "</div>";
+      html += "<div style='margin-top:8px;'>Other suspects:</div>";
+      c.suspects.forEach(function(s) {
+        html += "<div>&mdash; " + s.name + ", " + s.alibi + "</div>";
+      });
+      caseFileBox.innerHTML = html;
+    }
+
+    function caseFileText(c) {
+      let lines = [];
+      lines.push("Victim: " + c.victim);
+      lines.push("Cause of death: " + c.cause);
+      lines.push("Location of the body: " + c.location);
+      lines.push("Approximate time of death: " + c.time);
+      lines.push("Suspected weapon: " + c.weapon);
+      lines.push("Scene detail: " + c.scene);
+      lines.push("Other suspects and their stated alibis:");
+      c.suspects.forEach(function(s) {
+        lines.push("- " + s.name + " " + s.alibi);
+      });
+      return lines.join("\n");
+    }
+
+    function updateSuspicionDisplay() {
+      suspicionLabel.textContent = "Suspicion: " + suspicion + "%";
+      suspicionBar.style.width = suspicion + "%";
+    }
+
+    function renderTranscript() {
+      transcriptBox.innerHTML = "";
+      transcript.forEach(function(entry) {
+        const div = document.createElement("div");
+        div.className = "line " + (entry.who === "detective" ? "detective" : "suspect");
+        div.textContent = (entry.who === "detective" ? "Detective: " : "You: ") + entry.text;
+        transcriptBox.appendChild(div);
+      });
+      transcriptBox.scrollTop = transcriptBox.scrollHeight;
+    }
+
+    function buildDetectiveSystemPrompt() {
+      return "You are a sharp, world-weary noir homicide detective interrogating a single suspect about a murder.\n\n" +
+        "CASE FILE:\n" + caseFileText(currentCase) + "\n\n" +
+        "You do NOT know whether this suspect is innocent or the actual killer. You must judge them only from what they say in this interrogation: watch for contradictions with what they told you earlier, evasiveness, oddly specific or oddly vague details, and inconsistencies with the case file or the other suspects' alibis.\n\n" +
+        "After every answer they give, you must respond with ONLY a single JSON object and nothing else — no markdown fences, no commentary outside the JSON:\n" +
+        "{\n" +
+        '  "reply": "a short in-character spoken reaction plus your next question, 1-3 sentences, noir tone, never breaking character, never mentioning JSON or AI",\n' +
+        '  "suspicionDelta": an integer from -10 to 30 representing how much MORE suspicious this specific answer makes them look (use a negative number if it genuinely strengthens their alibi or resolves a prior concern),\n' +
+        '  "contradiction": true or false, true ONLY if this answer directly and clearly contradicts something they said earlier THIS interrogation,\n' +
+        '  "note": "a short clause capturing your reasoning for the case log, e.g. \'claimed to be in the greenhouse after earlier denying it\'"\n' +
+        "}\n\n" +
+        "Be a real detective: notice real contradictions, don't invent them. Reward genuinely consistent, specific, plausible answers with low or negative suspicionDelta. Punish evasiveness, vagueness, and contradictions.";
+    }
+
+    function buildVerdictSystemPrompt() {
+      return "You are the same noir homicide detective who just finished interrogating a suspect about this case:\n\n" +
+        caseFileText(currentCase) + "\n\n" +
+        "The interrogation transcript follows in the conversation. It is now over. Based ONLY on what the suspect actually said — contradictions, evasiveness, consistency, plausibility — decide your honest verdict: do you believe this suspect is the killer, or innocent?\n\n" +
+        "Respond with ONLY a single JSON object, nothing else, no markdown fences:\n" +
+        "{\n" +
+        '  "verdict": "killer" or "innocent",\n' +
+        '  "closingLine": "1-2 sentences, in character, delivering your verdict",\n' +
+        '  "reasoning": ["short reasoning note 1", "short reasoning note 2", "short reasoning note 3"]\n' +
+        "}\n\n" +
+        "Base this on the actual transcript, not on assumptions. If the suspect was consistent and plausible throughout, it is entirely correct to conclude innocent.";
+    }
+
+    function transcriptToMessages() {
+      // Anthropic messages must start with role "user" and alternate.
+      // Our transcript starts with a detective line (the opening question),
+      // so we fold that into the system prompt context instead of messages,
+      // and start the actual messages array from the first suspect answer.
+      const messages = [];
+      for (let i = 1; i < transcript.length; i++) {
+        const entry = transcript[i];
+        messages.push({
+          role: entry.who === "detective" ? "assistant" : "user",
+          content: entry.text
+        });
+      }
+      return messages;
+    }
+
+    function extractJSON(text) {
+      const cleaned = text.replace(/```json|```/g, "").trim();
+      const start = cleaned.indexOf("{");
+      const end = cleaned.lastIndexOf("}");
+      if (start === -1 || end === -1) {
+        throw new Error("No JSON object found in model reply: " + text.slice(0, 200));
+      }
+      try {
+        return JSON.parse(cleaned.substring(start, end + 1));
+      } catch (e) {
+        throw new Error("Model reply wasn't valid JSON: " + text.slice(0, 200));
+      }
+    }
+
+    async function callClaude(systemPrompt, messages) {
+      // Calls OUR OWN Flask server, not any AI provider directly. app.py holds the
+      // real API key (from .env) and forwards the request server-side.
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: systemPrompt,
+          messages: messages
+        })
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        throw new Error("Bad response from server (status " + response.status + "): could not parse JSON body.");
+      }
+
+      if (!response.ok) {
+        const apiMsg = (data && data.error) ? data.error : JSON.stringify(data);
+        throw new Error("Server returned " + response.status + ": " + apiMsg);
+      }
+
+      if (data && data.error) {
+        throw new Error("API error: " + data.error);
+      }
+
+      if (!data || !data.content) {
+        throw new Error("Unexpected API response shape: " + JSON.stringify(data));
+      }
+
+      const text = data.content.map(function(block) { return block.text || ""; }).join("\n");
+      return text;
+    }
+
+    function setBusy(state) {
+      busy = state;
+      submitAnswerBtn.disabled = state;
+      endInterrogationBtn.disabled = state;
+      answerInput.disabled = state;
+      loadingLine.style.display = state ? "block" : "none";
+    }
+
+    function generateCase_start() {
+      currentCase = generateCase();
+      reasoningLog = [];
+      transcript = [];
+      suspicion = 0;
+      questionCount = 0;
+      updateSuspicionDisplay();
+      contradictionFlag.style.display = "none";
+      errorLine.style.display = "none";
+      roleBox.textContent = "";
+      renderCaseFile(currentCase);
+      showScreen(briefingScreen);
+    }
+
+    function beginInterrogation() {
+      transcript.push({ who: "detective", text: openingQuestionText });
+      renderTranscript();
+      answerInput.value = "";
+      answerInput.focus();
+      showScreen(interrogationScreen);
+    }
+
+    chooseInnocentBtn.addEventListener("click", function() {
+      isKiller = false;
+      roleBox.textContent = "YOU CHOSE: INNOCENT. Convince them.";
+      beginInterrogation();
+    });
+
+    chooseKillerBtn.addEventListener("click", function() {
+      isKiller = true;
+      roleBox.textContent = "YOU CHOSE: THE KILLER. Lie convincingly.";
+      beginInterrogation();
+    });
+
+    async function handleSubmitAnswer() {
+      if (busy) return;
+      const answer = answerInput.value.trim();
+      if (!answer) return;
+
+      contradictionFlag.style.display = "none";
+      errorLine.style.display = "none";
+
+      transcript.push({ who: "suspect", text: answer });
+      renderTranscript();
+      answerInput.value = "";
+      questionCount++;
+
+      setBusy(true);
+      try {
+        const raw = await callClaude(buildDetectiveSystemPrompt(), transcriptToMessages());
+        const parsed = extractJSON(raw);
+
+        const delta = Math.max(-10, Math.min(30, Math.round(parsed.suspicionDelta || 0)));
+        suspicion = Math.max(0, Math.min(100, suspicion + delta));
+        updateSuspicionDisplay();
+
+        if (parsed.note) {
+          reasoningLog.push(parsed.note);
+        }
+
+        if (parsed.contradiction) {
+          contradictionFlag.textContent = "Contradiction spotted: " + (parsed.note || "your story doesn't line up.");
+          contradictionFlag.style.display = "block";
+        }
+
+        const replyText = parsed.reply || "Go on.";
+        transcript.push({ who: "detective", text: replyText });
+        renderTranscript();
+
+        if (suspicion >= 100 || questionCount >= MAX_QUESTIONS) {
+          await goToVerdict();
+        } else {
+          setBusy(false);
+          answerInput.focus();
+        }
+      } catch (err) {
+        console.error("Detective API error:", err);
+        errorLine.textContent = "The detective's radio crackles with static — couldn't reach him just now. (" + err.message + ")";
+        errorLine.style.display = "block";
+        // Roll back the answer we optimistically pushed, so retrying doesn't duplicate it.
+        transcript.pop();
+        renderTranscript();
+        questionCount--;
+        setBusy(false);
+      }
+    }
+
+    submitAnswerBtn.addEventListener("click", handleSubmitAnswer);
+    answerInput.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmitAnswer();
+      }
+    });
+
+    endInterrogationBtn.addEventListener("click", function() {
+      if (busy) return;
+      goToVerdict();
+    });
+
+    function renderReasoning(notes) {
+      reasoningList.innerHTML = "";
+      const notesToShow = notes.slice(-4);
+      if (notesToShow.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "Nothing especially damning came up — the verdict rests on overall pattern and tone.";
+        reasoningList.appendChild(li);
+        return;
+      }
+      notesToShow.forEach(function(note) {
+        const li = document.createElement("li");
+        li.textContent = note;
+        reasoningList.appendChild(li);
+      });
+    }
+
+    async function goToVerdict() {
+      setBusy(true);
+      errorLine.style.display = "none";
+
+      const messages = transcriptToMessages();
+      messages.push({ role: "user", content: "The interrogation is over. Deliver your verdict now, as instructed." });
+
+      try {
+        const raw = await callClaude(buildVerdictSystemPrompt(), messages);
+        const parsed = extractJSON(raw);
+
+        aiGuessedKiller = parsed.verdict === "killer";
+
+        verdictSummary.textContent = "The interrogation ends after " + questionCount + " questions. Final suspicion: " + suspicion + "%.";
+        verdictAiGuess.innerHTML = "The detective's verdict: <b>\"" + parsed.closingLine + "\"</b>";
+        verdictTruth.innerHTML = "The truth: you chose to play <b>" + (isKiller ? "the killer" : "the innocent") + "</b>.";
+
+        const combinedReasoning = reasoningLog.concat(Array.isArray(parsed.reasoning) ? parsed.reasoning : []);
+        renderReasoning(combinedReasoning);
+
+        feedbackResponse.style.display = "none";
+        showScreen(verdictScreen);
+      } catch (err) {
+        console.error("Verdict API error:", err);
+        errorLine.textContent = "The detective's radio crackles with static — couldn't reach him for a verdict. (" + err.message + ") Try 'End Interrogation' again.";
+        errorLine.style.display = "block";
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    restartBtn.addEventListener("click", generateCase_start);
+
+    rightBtn.addEventListener("click", function() {
+      const correct = aiGuessedKiller === isKiller;
+      feedbackResponse.textContent = correct
+        ? "The detective allows himself a small, satisfied nod."
+        : "You're just saying that to flatter him. He got it wrong.";
+      feedbackResponse.style.display = "block";
+    });
+
+    wrongBtn.addEventListener("click", function() {
+      const correct = aiGuessedKiller === isKiller;
+      feedbackResponse.textContent = correct
+        ? "Are you sure? Go back through the transcript — he was right."
+        : "He grumbles, flipping his notepad shut. A rare miss.";
+      feedbackResponse.style.display = "block";
+    });
+
+    playAgainBtn.addEventListener("click", generateCase_start);
+
+    generateCase_start();
+  </script>
+</body>
+</html>
